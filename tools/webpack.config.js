@@ -7,36 +7,36 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import fs from 'fs';
-import path from 'path';
-import webpack from 'webpack';
-import WebpackAssetsManifest from 'webpack-assets-manifest';
-import nodeExternals from 'webpack-node-externals';
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import overrideRules from './lib/overrideRules';
-import pkg from '../package.json';
+import fs from 'fs'
+import path from 'path'
+import webpack from 'webpack'
+import WebpackAssetsManifest from 'webpack-assets-manifest'
+import nodeExternals from 'webpack-node-externals'
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
+import overrideRules from './lib/overrideRules'
+import pkg from '../package.json'
 
-const ROOT_DIR = path.resolve(__dirname, '..');
-const resolvePath = (...args) => path.resolve(ROOT_DIR, ...args);
-const SRC_DIR = resolvePath('src');
-const BUILD_DIR = resolvePath('build');
+const ROOT_DIR = path.resolve(__dirname, '..')
+const resolvePath = (...args) => path.resolve(ROOT_DIR, ...args)
+const SRC_DIR = resolvePath('src')
+const BUILD_DIR = resolvePath('build')
 
-const isDebug = !process.argv.includes('--release');
-const isVerbose = process.argv.includes('--verbose');
+const isDebug = !process.argv.includes('--release')
+const isVerbose = process.argv.includes('--verbose')
 const isAnalyze =
-  process.argv.includes('--analyze') || process.argv.includes('--analyse');
+  process.argv.includes('--analyze') || process.argv.includes('--analyse')
 
-const reScript = /\.(js|jsx|mjs)$/;
-const reStyle = /\.(css|less|styl|scss|sass|sss)$/;
-const reImage = /\.(bmp|gif|jpg|jpeg|png|svg)$/;
+const reScript = /\.(js|jsx|mjs)$/
+const reStyle = /\.(css|less|styl|scss|sass|sss)$/
+const reImage = /\.(bmp|gif|jpg|jpeg|png|svg)$/
 const staticAssetName = isDebug
   ? '[path][name].[ext]?[hash:8]'
-  : '[hash:8].[ext]';
+  : '[hash:8].[ext]'
 
 // CSS Nano options http://cssnano.co/
 const minimizeCssOptions = {
   discardComments: { removeAll: true },
-};
+}
 
 //
 // Common configuration chunk to be used for both
@@ -286,7 +286,7 @@ const config = {
   // Choose a developer tool to enhance debugging
   // https://webpack.js.org/configuration/devtool/#devtool
   devtool: isDebug ? 'cheap-module-inline-source-map' : 'source-map',
-};
+}
 
 //
 // Configuration for the client-side bundle (client.js)
@@ -318,15 +318,15 @@ const clientConfig = {
       writeToDisk: true,
       customize: ({ key, value }) => {
         // You can prevent adding items to the manifest by returning false.
-        if (key.toLowerCase().endsWith('.map')) return false;
-        return { key, value };
+        if (key.toLowerCase().endsWith('.map')) return false
+        return { key, value }
       },
       done: (manifest, stats) => {
         // Write chunk-manifest.json.json
-        const chunkFileName = `${BUILD_DIR}/chunk-manifest.json`;
+        const chunkFileName = `${BUILD_DIR}/chunk-manifest.json`
         try {
-          const fileFilter = file => !file.endsWith('.map');
-          const addPath = file => manifest.getPublicPath(file);
+          const fileFilter = file => !file.endsWith('.map')
+          const addPath = file => manifest.getPublicPath(file)
           const chunkFiles = stats.compilation.chunkGroups.reduce((acc, c) => {
             acc[c.name] = [
               ...(acc[c.name] || []),
@@ -337,13 +337,13 @@ const clientConfig = {
                 ],
                 [],
               ),
-            ];
-            return acc;
-          }, Object.create(null));
-          fs.writeFileSync(chunkFileName, JSON.stringify(chunkFiles, null, 2));
+            ]
+            return acc
+          }, Object.create(null))
+          fs.writeFileSync(chunkFileName, JSON.stringify(chunkFiles, null, 2))
         } catch (err) {
-          console.error(`ERROR: Cannot write ${chunkFileName}: `, err);
-          if (!isDebug) process.exit(1);
+          console.error(`ERROR: Cannot write ${chunkFileName}: `, err)
+          if (!isDebug) process.exit(1)
         }
       },
     }),
@@ -379,7 +379,7 @@ const clientConfig = {
     net: 'empty',
     tls: 'empty',
   },
-};
+}
 
 //
 // Configuration for the server-side bundle (server.js)
@@ -436,7 +436,7 @@ const serverConfig = {
                     ],
             ),
           },
-        };
+        }
       }
 
       // Override paths to static assets
@@ -451,10 +451,10 @@ const serverConfig = {
             ...rule.options,
             emitFile: false,
           },
-        };
+        }
       }
 
-      return rule;
+      return rule
     }),
   },
 
@@ -493,6 +493,6 @@ const serverConfig = {
     __filename: false,
     __dirname: false,
   },
-};
+}
 
-export default [clientConfig, serverConfig];
+export default [clientConfig, serverConfig]
